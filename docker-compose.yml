@@ -1,0 +1,44 @@
+version: "3.8"
+services:
+  template-parthos-api:
+    container_name: template-parthos-api
+    build:
+      context: .
+    ports:
+      - "3001:3001"
+    volumes:
+      - .:/app
+    stdin_open: true
+    tty: true
+    depends_on:
+      - db
+    env_file:
+      - .env
+    command: >
+      sh -c "
+      npm install &&
+      npm run start:dev
+      "
+    networks:
+      - parthos-network 
+
+  db:
+    image: postgres:14-alpine
+    container_name: parthos-user-db
+    ports:
+      - "5433:5432" 
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: nestdb
+    volumes:
+      - parthos-data:/var/lib/postgresql/data
+    networks:
+      - parthos-network
+
+volumes:
+  parthos-data:
+
+networks:
+  parthos-network:
+    external: true  # Usa a rede externa compartilhada
