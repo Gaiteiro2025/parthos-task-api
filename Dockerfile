@@ -9,7 +9,7 @@ RUN npm install -g @nestjs/cli
 RUN npm install --save-dev ts-node
 
 # Expor a porta onde o app será executado
-EXPOSE 3000
+EXPOSE 3002
 
 # Definir comando padrão
 CMD ["sh", "-c", "npx typeorm migration:run && npm run start:dev"]
