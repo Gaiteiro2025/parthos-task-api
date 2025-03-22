@@ -16,10 +16,13 @@ module.exports = {
     "src/app.module.ts",
     "src/ormconfig.ts",
     "src/ormconfig.test.ts",
+    "src/filters/all-exceptions.filter",
     
   ],
   collectCoverageFrom: [
     "**/*.(t|j)s",
+    "!**/*.mock.(t|j)s",
+    "!**/*.constants.(t|j)s",
     "!**/*.strategy.(t|j)s",
     "!**/*-auth.guard.(t|j)s",
     "!**/*.module.(t|j)s",
