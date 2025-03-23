@@ -19,12 +19,12 @@ export class CreateTaskDto {
         enum: TaskStatus, // Aplicando enum TaskStatus
     })
     @IsString()
-    status: TaskStatus;
+    status?: TaskStatus;
 
     @ApiPropertyOptional(TaskSwagger.assign)
     @IsOptional()
     @IsUUID()
-    assign: string;
+    assign?: string;
 
     @ApiProperty({
         ...TaskSwagger.type,
@@ -38,15 +38,15 @@ export class CreateTaskDto {
         enum: TaskPriority, // Aplicando enum TaskPriority
     })
     @IsString()
-    priority: TaskPriority;
+    priority?: TaskPriority;
 
     @ApiPropertyOptional(TaskSwagger.dueDate)
     @IsOptional()
     @IsISO8601()
-    dueDate: string;
+    dueDate?: string;
 
     @ApiPropertyOptional(TaskSwagger.completedAt)
     @IsOptional()
     @IsISO8601()
-    completedAt: string;
+    completedAt?: string;
 }

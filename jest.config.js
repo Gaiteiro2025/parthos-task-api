@@ -16,7 +16,8 @@ module.exports = {
     "src/app.module.ts",
     "src/ormconfig.ts",
     "src/ormconfig.test.ts",
-    "src/filters/all-exceptions.filter",
+    "src/filters/all-exceptions.filter.ts",
+    "src/common/handle.error.ts"
     
   ],
   collectCoverageFrom: [

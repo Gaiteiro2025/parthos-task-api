@@ -1,4 +1,4 @@
-import { Inject, Injectable, InternalServerErrorException, NotFoundException } from '@nestjs/common';
+import { Inject, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { isDate } from 'util/types';
@@ -6,6 +6,7 @@ import { TaskHistoryAction } from '../common/enums/task-history-action.enum';
 import { TaskPriority } from '../common/enums/task-priority.enum';
 import { TaskStatus } from '../common/enums/task-status.enum';
 import { TaskType } from '../common/enums/task-type.enum';
+import { handleError } from '../common/handle.error';
 import { TaskChange } from '../common/TaskChange';
 import { TaskHistoryService } from '../task-history/task-history.service';
 import { User } from '../users/entities/user.entity';
@@ -25,15 +26,11 @@ export class TaskService {
   ) { }
 
   async findByUserId(assignId: string): Promise<Task[]> {
-    try {
-      const tasks = await this.taskRepository.find({ where: { assign: { id: assignId } } });
-      if (!tasks || tasks.length === 0) {
-        return []; // Retorne um array vazio em vez de lançar uma exceção
-      }
-      return tasks;
-    } catch (error) {
-      this.handleError(error, 'buscar tarefas para o usuário', assignId);
+    const tasks = await this.taskRepository.find({ where: { assign: { id: assignId } } });
+    if (!tasks || tasks.length === 0) {
+      return [];
     }
+    return tasks;
   }
 
   async create(createTaskDto: CreateTaskDto): Promise<Task> {
@@ -58,7 +55,7 @@ export class TaskService {
 
       return savedTask;
     } catch (error) {
-      this.handleError(error, 'criar tarefa');
+      handleError(error, 'criar tarefa');
     }
   }
 
@@ -72,7 +69,7 @@ export class TaskService {
 
       return task;
     } catch (error) {
-      this.handleError(error, 'buscar a tarefa', id);
+      handleError(error, 'buscar a tarefa', id);
     }
   }
 
@@ -83,13 +80,13 @@ export class TaskService {
       await this.updateAssign(updateTaskDto, task, changes);
 
       if (changes.length === 0) return task;
-      task.updatedAt = new Date();
+      //task.updatedAt = new Date();
       const updatedTask = await this.taskRepository.save(task);
       await this.taskHistoryService.createHistoryByTaskUpdate(updatedTask, task.assign, changes);
 
       return updatedTask;
     } catch (error) {
-      this.handleError(error, 'atualizar a tarefa', id);
+      handleError(error, 'atualizar a tarefa', id);
     }
   }
 
@@ -106,7 +103,7 @@ export class TaskService {
 
       return await this.taskRepository.remove(task);
     } catch (error) {
-      this.handleError(error, 'remover a tarefa', id);
+      handleError(error, 'remover a tarefa', id);
     }
   }
 
@@ -118,7 +115,7 @@ export class TaskService {
       }
       return user;
     } catch (error) {
-      this.handleError(error, 'buscar o usuário', id);
+      handleError(error, 'buscar o usuário', id);
     }
   }
 
@@ -165,12 +162,5 @@ export class TaskService {
     });
 
     return changes;
-  }
-
-  private handleError(error: unknown, action: string, id?: string): void {
-    if (error instanceof Error) {
-      throw new InternalServerErrorException(`Erro ao ${action}${id ? ` com ID ${id}` : ''}: ${error.message}`);
-    }
-    throw new InternalServerErrorException(`Erro desconhecido ao ${action}${id ? ` com ID ${id}` : ''}`);
   }
 }
