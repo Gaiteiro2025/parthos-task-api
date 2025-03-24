@@ -42,7 +42,7 @@ export class Task {
     dueDate: Date;
 
     @ApiProperty(TaskSwagger.completedAt)
-    @Column({ type: 'timestamptz' })
+    @Column({ type: 'timestamptz', nullable: true })
     completedAt: Date;
 
     @ApiProperty(TaskSwagger.createdAt)

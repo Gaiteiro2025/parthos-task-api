@@ -1,5 +1,21 @@
-import { Body, Controller, Delete, Get, Param, Patch, Post, UseGuards } from '@nestjs/common';
-import { ApiBearerAuth, ApiOperation, ApiParam, ApiResponse, ApiTags } from '@nestjs/swagger';
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  Param,
+  Patch,
+  Post,
+  UseGuards,
+} from '@nestjs/common';
+import {
+  ApiBearerAuth,
+  ApiOperation,
+  ApiParam,
+  ApiResponse,
+  ApiTags,
+} from '@nestjs/swagger';
+import { Observable } from 'rxjs';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { TaskControllerSwagger } from '../common/constants/task-controller-swagger.constants';
 import { CreateTaskDto } from './dto/create-task.dto';
@@ -24,7 +40,7 @@ export class TaskController {
   @ApiOperation(TaskControllerSwagger.listByUser.operation)
   @ApiResponse(TaskControllerSwagger.listByUser.responses)
   @Get('user/:userId')
-  async findByUserId(@Param('userId') userId: string): Promise<Task[]> {
+  findByUserId(@Param('userId') userId: string): Observable<Task[]> {
     return this.taskService.findByUserId(userId);
   }
 
@@ -40,7 +56,10 @@ export class TaskController {
   @ApiParam(TaskControllerSwagger.update.param)
   @ApiResponse(TaskControllerSwagger.update.responses)
   @Patch(':id')
-  async update(@Param('id') id: string, @Body() updateTaskDto: UpdateTaskDto): Promise<Task> {
+  async update(
+    @Param('id') id: string,
+    @Body() updateTaskDto: UpdateTaskDto,
+  ): Promise<Task> {
     return this.taskService.update(id, updateTaskDto);
   }
 

@@ -1,5 +1,6 @@
 import { Inject, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import { from, Observable } from 'rxjs';
 import { Repository } from 'typeorm';
 import { isDate } from 'util/types';
 import { TaskHistoryAction } from '../common/enums/task-history-action.enum';
@@ -25,30 +26,39 @@ export class TaskService {
     private readonly taskHistoryService: TaskHistoryService
   ) { }
 
-  async findByUserId(assignId: string): Promise<Task[]> {
-    const tasks = await this.taskRepository.find({ where: { assign: { id: assignId } } });
-    if (!tasks || tasks.length === 0) {
-      return [];
-    }
-    return tasks;
+  findByUserId(assignId: string): Observable<Task[]> {
+    const tasksPromise = this.taskRepository.find({
+      where: { assign: { id: assignId } },
+      relations: ['assign'],
+      order: {
+        dueDate: 'DESC',
+      }
+    });
+    return from(tasksPromise);
   }
 
   async create(createTaskDto: CreateTaskDto): Promise<Task> {
     try {
-      const assignUser = await this.findAssignUserById(createTaskDto.assign);
-
-      const task = this.taskRepository.create({
-        ...createTaskDto,
-        assign: assignUser,
+      const { assign, dueDate, completedAt, ...createTask } = createTaskDto
+      const newTask: Partial<Task> = {
+        ...createTask,
+        dueDate: dueDate ? new Date(dueDate) : null,
+        completedAt: completedAt ? new Date(completedAt) : null,
         createdAt: new Date(),
         updatedAt: new Date(),
-      });
+        assign: null,
+      }
+      if (createTaskDto.assign) {
+        newTask.assign = await this.findAssignUserById(createTaskDto.assign);
+      }
+
+      const task = this.taskRepository.create(newTask);
 
       const savedTask = await this.taskRepository.save(task);
 
       await this.taskHistoryService.createHistory({
         task: savedTask,
-        changedBy: assignUser,
+        changedBy: task?.assign || null,
         action: TaskHistoryAction.CREATED,
         createdAt: new Date(),
       });

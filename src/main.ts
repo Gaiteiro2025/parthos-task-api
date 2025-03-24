@@ -9,8 +9,10 @@ async function bootstrap() {
   app.useGlobalFilters(new AllExceptionsFilter());
 
   const host = process.env.HOST || 'localhost';
-  const apiUrl = host === 'localhost' ? 'http://localhost:3002' : 'http://localhost:3000/task';
-
+  const apiUrl =
+    host === 'localhost'
+      ? 'http://localhost:3002'
+      : 'http://localhost:3000/task-api';
 
   const config = new DocumentBuilder()
     .setTitle(packageJson.name)
