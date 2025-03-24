@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
+import { Column, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
 import { TaskHistorySwagger } from '../../common/constants/task-history-swagger.constants';
 import { TaskHistoryAction } from '../../common/enums/task-history-action.enum';
 import { Task } from '../../task/entities/task.entity';
@@ -12,11 +12,13 @@ export class TaskHistory {
     id: string;
 
     @ApiProperty(TaskHistorySwagger.task)
-    @ManyToOne(() => Task, (task) => task.id)
+    @ManyToOne(() => Task)
+    @JoinColumn()
     task: Task;
 
     @ApiProperty(TaskHistorySwagger.changedBy)
-    @ManyToOne(() => User, (user) => user.id)
+    @ManyToOne(() => User)
+    @JoinColumn()
     changedBy: User;
 
     @ApiProperty(TaskHistorySwagger.fieldChanged)

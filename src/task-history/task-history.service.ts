@@ -1,5 +1,6 @@
 import { Injectable, InternalServerErrorException, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import { from, Observable } from 'rxjs';
 import { Repository } from 'typeorm';
 import { TaskHistoryAction } from '../common/enums/task-history-action.enum';
 import { TaskChange } from '../common/TaskChange';
@@ -33,13 +34,17 @@ export class TaskHistoryService {
     }
   }
 
-  async findByTaskId(taskId: string): Promise<TaskHistory[]> {
+  findByTaskId(taskId: string): Observable<TaskHistory[]> {
     try {
-      const histories = await this.taskHistoryRepository.find({ where: { task: { id: taskId } } });
-      if (histories.length === 0) {
-        throw new NotFoundException(`Nenhum histórico encontrado para a tarefa com ID ${taskId}`);
-      }
-      return histories;
+      const histories = this.taskHistoryRepository.find({
+        where: { task: { id: taskId } },
+        relations: ['task', 'changedBy'],
+        order: {
+          createdAt: 'DESC',
+        }
+      });
+
+      return from(histories)
     } catch (error) {
       this.handleError(error, 'buscar histórico da tarefa', taskId);
     }

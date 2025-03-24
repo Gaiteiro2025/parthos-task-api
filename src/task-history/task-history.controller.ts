@@ -1,5 +1,6 @@
 import { Controller, Delete, Get, Param, UseGuards } from '@nestjs/common';
 import { ApiBearerAuth, ApiOperation, ApiParam, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { Observable } from 'rxjs';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { TaskHistoryControllerSwagger } from '../common/constants/task-history-controller-swagger.constants';
 import { TaskHistory } from './entities/task-history.entity';
@@ -15,7 +16,7 @@ export class TaskHistoryController {
   @ApiOperation(TaskHistoryControllerSwagger.listByTask.operation)
   @ApiResponse(TaskHistoryControllerSwagger.listByTask.responses)
   @Get('task/:taskId')
-  findByTaskId(@Param('taskId') taskId: string): Promise<TaskHistory[]> {
+  findByTaskId(@Param('taskId') taskId: string): Observable<TaskHistory[]> {
     return this.taskHistoryService.findByTaskId(taskId);
   }
 
