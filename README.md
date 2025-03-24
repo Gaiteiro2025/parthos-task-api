@@ -1,10 +1,6 @@
 # Parthos Task API
 
-Este repositório serve como um modelo para criação de APIs utilizando NestJS.
-
-> **⚠ IMPORTANTE:** Ao iniciar um novo projeto, renomeie todas as instâncias de `parthos-task-api` para o nome desejado da sua API.
-
----
+Este repositório contém a API de gerenciamento de tarefas do projeto Parthos, um aplicativo de to-do list com uma abordagem imersiva e inspirada no universo de Skyrim.
 
 ## Índice
 
@@ -22,11 +18,10 @@ Este repositório serve como um modelo para criação de APIs utilizando NestJS.
 
 ## Instalação
 
-Clone este repositório e renomeie-o para o nome do seu projeto:
 
 ```bash
-$ git clone https://github.com/Gaiteiro2025/parthos-task-api.git meu-projeto-api
-$ cd meu-projeto-api
+$ git clone https://github.com/Gaiteiro2025/parthos-task-api.git
+$ cd parthos-task-ap
 ```
 
 Instale as dependências:
@@ -52,36 +47,6 @@ DB_NAME=nestdb
 JWT_SECRET=default_secret
 JWT_EXPIRATION=1h
 ```
-
----
-
-## Estrutura do Projeto
-
-O template inclui um exemplo de módulo de **usuários** como referência para organização de **módulos, serviços e repositórios**.
-
-**Estrutura de diretórios:**
-
-```
-├── src
-│   ├── users  # Exemplo de CRUD completo
-│   │   ├── users.controller.ts
-│   │   ├── users.service.ts
-│   │   ├── users.repository.ts
-│   │   ├── users.module.ts
-│   ├── auth   # Módulo de autenticação
-│   ├── main.ts
-│   ├── app.module.ts
-├── test       # Testes unitários e e2e
-├── .github    # CI/CD com GitHub Actions
-├── docker-compose.yml
-└── README.md
-```
-
-Você pode **remover** ou **modificar** o módulo `users` conforme sua necessidade.
-
-Se quiser criar novos módulos, siga a mesma estrutura e registre-os no `AppModule`.
-
----
 
 ## Uso
 
