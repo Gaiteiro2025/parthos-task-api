@@ -1,8 +1,8 @@
-# Template Parthos API
+# Parthos Task API
 
 Este repositório serve como um modelo para criação de APIs utilizando NestJS.
 
-> **⚠ IMPORTANTE:** Ao iniciar um novo projeto, renomeie todas as instâncias de `template-parthos-api` para o nome desejado da sua API.
+> **⚠ IMPORTANTE:** Ao iniciar um novo projeto, renomeie todas as instâncias de `parthos-task-api` para o nome desejado da sua API.
 
 ---
 
@@ -25,7 +25,7 @@ Este repositório serve como um modelo para criação de APIs utilizando NestJS.
 Clone este repositório e renomeie-o para o nome do seu projeto:
 
 ```bash
-$ git clone https://github.com/Gaiteiro2025/template-parthos-api.git meu-projeto-api
+$ git clone https://github.com/Gaiteiro2025/parthos-task-api.git meu-projeto-api
 $ cd meu-projeto-api
 ```
 
@@ -91,9 +91,9 @@ Para iniciar a aplicação em modo de desenvolvimento:
 $ npm run start:dev
 ```
 
-A API estará disponível em: [http://localhost:3001](http://localhost:3001)
+A API estará disponível em: [http://localhost:3002](http://localhost:3002)
 
-A documentação Swagger estará em: [http://localhost:3001/api](http://localhost:3001/api)
+A documentação Swagger estará em: [http://localhost:3002/api](http://localhost:3002/api)
 
 ---
 

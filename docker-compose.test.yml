@@ -1,7 +1,7 @@
 version: "3.8"
 services:
   test-app:
-    container_name: template-parthos-test-api
+    container_name: parthos-task-test-api
     build:
       context: .
       dockerfile: Dockerfile
@@ -27,7 +27,7 @@ services:
       
   test-db:
     image: postgres:14-alpine
-    container_name: parthos-user-test-db
+    container_name: parthos-task-test-db
     ports:
       - "5433:5432" # Porta local diferente para não conflitar com o ambiente normal
     environment:

@@ -1,6 +1,6 @@
 {
-  "name": "template-parthos-api",
-  "version": "1",
+  "name": "parthos-task-api",
+  "version": "1.0.0",
   "description": "API documentation for the NestJS project",
   "author": "",
   "private": true,
