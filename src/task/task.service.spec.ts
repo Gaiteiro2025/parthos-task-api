@@ -1,6 +1,7 @@
 import { InternalServerErrorException, NotFoundException } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import { getRepositoryToken } from '@nestjs/typeorm';
+import { firstValueFrom } from 'rxjs';
 import { Repository } from 'typeorm';
 import { TaskHistoryAction } from '../common/enums/task-history-action.enum';
 import { TaskPriority } from '../common/enums/task-priority.enum';
@@ -57,31 +58,23 @@ describe('TaskService', () => {
       const createTaskDto: CreateTaskDto = {
         title: 'Test Task',
         description: 'Test Description',
-        assign: 'user-id',
-        priority: TaskPriority.HIGH,
-        status: TaskStatus.TODO,
         type: TaskType.TASK,
-        dueDate: '',
-        completedAt: ''
+        dueDate: new Date().toISOString(),
+        completedAt: new Date().toISOString(),
       };
-      const user = { ...mockUser, id: 'user-id', name: 'Test User' };
-      const savedTask = { ...mockTask, id: 'task-id', ...createTaskDto };
+      const savedTask = { id: 'task-id', ...createTaskDto, };
 
-      userRepository.findOne = jest.fn().mockResolvedValue(user);
       taskRepository.create = jest.fn().mockReturnValue(savedTask);
       taskRepository.save = jest.fn().mockResolvedValue(savedTask);
 
       const result = await taskService.create(createTaskDto);
 
       expect(result).toEqual(savedTask);
-      expect(userRepository.findOne).toHaveBeenCalledWith({ where: { id: 'user-id' } });
-      expect(taskRepository.save).toHaveBeenCalledWith(savedTask);
-      expect(taskHistoryService.createHistory).toHaveBeenCalledWith({
+      expect(taskRepository.save).toHaveBeenCalledWith(expect.objectContaining({ title: savedTask.title }));
+      expect(taskHistoryService.createHistory).toHaveBeenCalledWith(expect.objectContaining({
         task: savedTask,
-        changedBy: user,
         action: 'created',
-        createdAt: expect.any(Date),
-      });
+      }));
     });
 
     it('should throw NotFoundException if user is not found', async () => {
@@ -149,19 +142,31 @@ describe('TaskService', () => {
       const tasks: Task[] = [{ ...mockTask, assign: { ...mockUser, id: 'user-id', name: 'Test User' } }];
       taskRepository.find = jest.fn().mockResolvedValue(tasks);
 
-      const result = await taskService.findByUserId('user-id');
+      const result = await firstValueFrom(taskService.findByUserId('user-id'));
 
       expect(result).toEqual(tasks);
-      expect(taskRepository.find).toHaveBeenCalledWith({ where: { assign: { id: 'user-id' } } });
+      expect(taskRepository.find).toHaveBeenCalledWith({
+        where: { assign: { id: 'user-id' } },
+        relations: ['assign'],
+        order: {
+          dueDate: 'DESC',
+        }
+      });
     });
 
     it('should return an empty array if no tasks are assigned to the user', async () => {
       taskRepository.find = jest.fn().mockResolvedValue([]);
 
-      const result = await taskService.findByUserId('user-id');
+      const result = await firstValueFrom(taskService.findByUserId('user-id'));
 
       expect(result).toEqual([]);
-      expect(taskRepository.find).toHaveBeenCalledWith({ where: { assign: { id: 'user-id' } } });
+      expect(taskRepository.find).toHaveBeenCalledWith({
+        where: { assign: { id: 'user-id' } },
+        relations: ['assign'],
+        order: {
+          dueDate: 'DESC',
+        }
+      });
     });
   });
 

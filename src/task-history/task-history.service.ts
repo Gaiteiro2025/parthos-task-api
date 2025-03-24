@@ -1,8 +1,9 @@
-import { Injectable, InternalServerErrorException, NotFoundException } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { from, Observable } from 'rxjs';
 import { Repository } from 'typeorm';
 import { TaskHistoryAction } from '../common/enums/task-history-action.enum';
+import { handleError } from '../common/handle.error';
 import { TaskChange } from '../common/TaskChange';
 import { Task } from '../task/entities/task.entity';
 import { User } from '../users/entities/user.entity';
@@ -21,7 +22,7 @@ export class TaskHistoryService {
       const history = this.taskHistoryRepository.create(data);
       return await this.taskHistoryRepository.save(history);
     } catch (error) {
-      this.handleError(error, 'salvar o histórico da tarefa');
+      handleError(error, 'salvar o histórico da tarefa');
     }
   }
 
@@ -30,24 +31,20 @@ export class TaskHistoryService {
       const histories = this.taskHistoryRepository.create(data);
       return await this.taskHistoryRepository.save(histories);
     } catch (error) {
-      this.handleError(error, 'salvar múltiplos históricos de tarefa');
+      handleError(error, 'salvar múltiplos históricos de tarefa');
     }
   }
 
   findByTaskId(taskId: string): Observable<TaskHistory[]> {
-    try {
-      const histories = this.taskHistoryRepository.find({
-        where: { task: { id: taskId } },
-        relations: ['task', 'changedBy'],
-        order: {
-          createdAt: 'DESC',
-        }
-      });
+    const histories = this.taskHistoryRepository.find({
+      where: { task: { id: taskId } },
+      relations: ['task', 'changedBy'],
+      order: {
+        createdAt: 'DESC',
+      }
+    });
 
-      return from(histories)
-    } catch (error) {
-      this.handleError(error, 'buscar histórico da tarefa', taskId);
-    }
+    return from(histories);
   }
 
   async findOne(id: string): Promise<TaskHistory> {
@@ -58,7 +55,7 @@ export class TaskHistoryService {
       }
       return taskHistory;
     } catch (error) {
-      this.handleError(error, 'buscar o histórico da tarefa', id);
+      handleError(error, 'buscar o histórico da tarefa', id);
     }
   }
 
@@ -67,7 +64,7 @@ export class TaskHistoryService {
       const history = await this.findOne(id);
       await this.taskHistoryRepository.remove(history);
     } catch (error) {
-      this.handleError(error, 'remover o histórico da tarefa', id);
+      handleError(error, 'remover o histórico da tarefa', id);
     }
   }
 
@@ -81,15 +78,7 @@ export class TaskHistoryService {
         ...(changes.length === 1 ? change : { fieldChanged: '', oldValue: '', newValue: '' }),
       });
     } catch (error) {
-      this.handleError(error, 'registrar histórico de atualização da tarefa');
+      handleError(error, 'registrar histórico de atualização da tarefa');
     }
   }
-
-  private handleError(error: unknown, action: string, id?: string): void {
-    if (error instanceof Error) {
-      throw new InternalServerErrorException(`Erro ao ${action}${id ? ` com ID ${id}` : ''}: ${error.message}`);
-    }
-    throw new InternalServerErrorException(`Erro desconhecido ao ${action}${id ? ` com ID ${id}` : ''}`);
-  }
-
 }

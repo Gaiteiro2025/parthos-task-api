@@ -1,7 +1,8 @@
-import { Inject, Injectable, InternalServerErrorException, NotFoundException } from '@nestjs/common';
+import { Inject, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { TaskHistoryAction } from '../common/enums/task-history-action.enum';
+import { handleError } from '../common/handle.error';
 import { TaskHistory } from '../task-history/entities/task-history.entity';
 import { TaskHistoryService } from '../task-history/task-history.service';
 import { TaskService } from '../task/task.service';
@@ -24,25 +25,26 @@ export class TaskMessageService {
   ) { }
 
   async create(createTaskMessageDto: CreateTaskMessageDto): Promise<TaskMessage> {
-    const [task, author] = await Promise.all([
-      this.taskService.findOne(createTaskMessageDto.taskId),
-      this.userRepository.findOne({ where: { id: createTaskMessageDto.authorId } })
-    ]);
-
-    if (!task) {
-      throw new NotFoundException(`Tarefa com ID ${createTaskMessageDto.taskId} não encontrada.`);
-    }
-    if (!author) {
-      throw new NotFoundException(`Autor com ID ${createTaskMessageDto.authorId} não encontrado.`);
-    }
-
-    const taskMessage = this.taskMessageRepository.create({
-      ...createTaskMessageDto,
-      task,
-      author
-    });
-
     try {
+      const [task, author] = await Promise.all([
+        this.taskService.findOne(createTaskMessageDto.taskId),
+        this.userRepository.findOne({ where: { id: createTaskMessageDto.authorId } })
+      ]);
+
+      if (!task) {
+        throw new NotFoundException(`Tarefa com ID ${createTaskMessageDto.taskId} não encontrada.`);
+      }
+      if (!author) {
+        throw new NotFoundException(`Autor com ID ${createTaskMessageDto.authorId} não encontrado.`);
+      }
+
+      const taskMessage = this.taskMessageRepository.create({
+        ...createTaskMessageDto,
+        task,
+        author
+      });
+
+
       await this.taskHistoryService.createHistory({
         task: taskMessage.task,
         changedBy: taskMessage.author,
@@ -53,7 +55,7 @@ export class TaskMessageService {
 
       return await this.taskMessageRepository.save(taskMessage);
     } catch (error) {
-      this.handleError(error, 'salvar mensagem da tarefa');
+      handleError(error, 'salvar mensagem da tarefa');
     }
   }
 
@@ -65,7 +67,7 @@ export class TaskMessageService {
       }
       return messages;
     } catch (error) {
-      this.handleError(error, 'buscar mensagens da tarefa', taskId);
+      handleError(error, 'buscar mensagens da tarefa', taskId);
     }
   }
 
@@ -77,33 +79,27 @@ export class TaskMessageService {
       }
       return taskMessage;
     } catch (error) {
-      this.handleError(error, 'buscar mensagem', id);
+      handleError(error, 'buscar mensagem', id);
     }
   }
 
   async update(id: string, updateTaskMessageDto: UpdateTaskMessageDto): Promise<TaskMessage> {
-    const taskMessage = await this.findOne(id);
-    Object.assign(taskMessage, updateTaskMessageDto);
     try {
+      const taskMessage = await this.findOne(id);
+      Object.assign(taskMessage, updateTaskMessageDto);
+
       return await this.taskMessageRepository.save(taskMessage);
     } catch (error) {
-      this.handleError(error, 'atualizar mensagem', id);
+      handleError(error, 'atualizar mensagem', id);
     }
   }
 
   async remove(id: string): Promise<void> {
-    const taskMessage = await this.findOne(id);
     try {
+      const taskMessage = await this.findOne(id);
       await this.taskMessageRepository.remove(taskMessage);
     } catch (error) {
-      this.handleError(error, 'remover mensagem', id);
+      handleError(error, 'remover mensagem', id);
     }
-  }
-
-  private handleError(error: unknown, action: string, id?: string): void {
-    if (error instanceof Error) {
-      throw new InternalServerErrorException(`Erro ao ${action}${id ? ` com ID ${id}` : ''}: ${error.message}`);
-    }
-    throw new InternalServerErrorException(`Erro desconhecido ao ${action}${id ? ` com ID ${id}` : ''}`);
   }
 }

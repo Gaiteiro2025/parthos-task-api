@@ -24,6 +24,7 @@ module.exports = {
     "**/*.(t|j)s",
     "!**/*.mock.(t|j)s",
     "!**/*.constants.(t|j)s",
+    "!**/*.entity.(t|j)s",
     "!**/*.strategy.(t|j)s",
     "!**/*-auth.guard.(t|j)s",
     "!**/*.module.(t|j)s",

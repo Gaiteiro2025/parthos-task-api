@@ -86,6 +86,26 @@ describe('TaskMessageService', () => {
         })
       );
     });
+
+    it('should throw NotFoundException if task not found in create message', async () => {
+      const createDto: CreateTaskMessageDto = { taskId: 'task-id', authorId: 'user-id', message: 'Test message' };
+      jest.spyOn(taskService, 'findOne').mockResolvedValue(null);
+      userRepository.findOne = jest.fn().mockResolvedValue({ id: 'user-id' });
+
+      await expect(taskMessageService.create(createDto)).rejects.toThrow(
+        new NotFoundException("Erro ao salvar mensagem da tarefa: Tarefa com ID task-id não encontrada.")
+      );
+    });
+
+    it('should throw NotFoundException if user not found in create message', async () => {
+      const createDto: CreateTaskMessageDto = { taskId: 'task-id', authorId: 'user-id', message: 'Test message' };
+      userRepository.findOne = jest.fn().mockResolvedValue(null);
+      taskService.findOne = jest.fn().mockResolvedValue({ id: 'task-id' });
+
+      await expect(taskMessageService.create(createDto)).rejects.toThrow(
+        new NotFoundException("Erro ao salvar mensagem da tarefa: Autor com ID user-id não encontrado.")
+      );
+    });
   });
 
 
@@ -101,6 +121,26 @@ describe('TaskMessageService', () => {
       expect(result).toEqual(messages);
       expect(taskMessageRepository.find).toHaveBeenCalledWith({ where: { task: { id: taskId } } });
     });
+
+    it('should throw NotFoundException if message by task not found', async () => {
+      const taskId = mockTask.id
+
+      jest.spyOn(taskMessageRepository, 'find').mockResolvedValue([]);
+
+      await expect(taskMessageService.findByTaskId(taskId)).rejects.toThrow(
+        new NotFoundException("Erro ao buscar mensagens da tarefa com ID 550e8400-e29b-41d4-a716-446655440000: Nenhuma mensagem encontrada para a tarefa com ID 550e8400-e29b-41d4-a716-446655440000.")
+      );
+    });
+
+    it('should throw NotFoundException, find message by task id', async () => {
+      const taskId = mockTask.id
+
+      jest.spyOn(taskMessageRepository, 'find').mockRejectedValue(NotFoundException);
+
+      await expect(taskMessageService.findByTaskId(taskId)).rejects.toThrow(
+        new NotFoundException("Erro desconhecido ao buscar mensagens da tarefa com ID 550e8400-e29b-41d4-a716-446655440000")
+      );
+    });
   });
 
   describe('findOne', () => {
@@ -115,6 +155,16 @@ describe('TaskMessageService', () => {
 
       expect(result).toEqual(message);
       expect(taskMessageRepository.findOne).toHaveBeenCalledWith({ where: { id: messageId } });
+    });
+
+    it('should throw NotFoundException if message is not found', async () => {
+      const messageId = 'invalid-message-id';
+
+      jest.spyOn(taskMessageRepository, 'findOne').mockResolvedValue(null);
+
+      await expect(taskMessageService.findOne(messageId)).rejects.toThrow(
+        new NotFoundException(`Erro ao buscar mensagem com ID invalid-message-id: Mensagem com ID invalid-message-id não encontrada.`)
+      );
     });
 
     it('should throw NotFoundException if message is not found', async () => {
@@ -151,7 +201,7 @@ describe('TaskMessageService', () => {
       jest.spyOn(taskMessageRepository, 'findOne').mockResolvedValue(null);
 
       await expect(taskMessageService.update(messageId, updateDto)).rejects.toThrow(
-        new NotFoundException(`Erro ao buscar mensagem com ID invalid-message-id: Mensagem com ID invalid-message-id não encontrada.`)
+        new NotFoundException("Erro ao atualizar mensagem com ID invalid-message-id: Erro ao buscar mensagem com ID invalid-message-id: Mensagem com ID invalid-message-id não encontrada.")
       );
     });
   });
@@ -175,7 +225,7 @@ describe('TaskMessageService', () => {
       jest.spyOn(taskMessageRepository, 'findOne').mockResolvedValue(null);
 
       await expect(taskMessageService.remove(messageId)).rejects.toThrowError(
-        new NotFoundException(`Erro ao buscar mensagem com ID invalid-message-id: Mensagem com ID invalid-message-id não encontrada.`)
+        new NotFoundException("Erro ao remover mensagem com ID invalid-message-id: Erro ao buscar mensagem com ID invalid-message-id: Mensagem com ID invalid-message-id não encontrada.")
       );
     });
   });
