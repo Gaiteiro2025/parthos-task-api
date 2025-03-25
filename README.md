@@ -1,44 +1,38 @@
-# Parthos Task API
+# Parthos - Transforme seus problemas em solução
 
-Este repositório contém a API de gerenciamento de tarefas do projeto Parthos, um aplicativo de to-do list com uma abordagem imersiva e inspirada no universo de Skyrim.
+[![GitHub repo size](https://img.shields.io/github/repo-size/Gaiteiro2025/parthos-task-api)](https://github.com/Gaiteiro2025/parthos-task-api)
+[![GitHub last commit](https://img.shields.io/github/last-commit/Gaiteiro2025/parthos-task-api)](https://github.com/Gaiteiro2025/parthos-task-api/commits/main)
+[![GitHub Release](https://img.shields.io/github/v/release/Gaiteiro2025/parthos-task-api)](https://github.com/Gaiteiro2025/parthos-task-api/releases)
+[![GitHub issues](https://img.shields.io/github/issues/Gaiteiro2025/parthos-task-api)](https://github.com/Gaiteiro2025/parthos-task-api/issues)
+[![GitHub license](https://img.shields.io/github/license/Gaiteiro2025/parthos-task-api)](https://github.com/Gaiteiro2025/parthos-task-api/blob/main/LICENSE)
 
-## Índice
+O **Parthos Task API** é o microserviço responsável pelo gerenciamento de tarefas dentro do ecossistema Parthos.
 
-1. [Instalação](#instalacao)
-2. [Configuração do Ambiente](#configuracao-do-ambiente)
-3. [Estrutura do Projeto](#estrutura-do-projeto)
-4. [Uso](#uso)
-5. [Docker](#docker)
-6. [Testes](#testes)
-7. [Integração Contínua](#integracao-continua)
-8. [Contribuição](#contribuicao)
-9. [Licença](#licenca)
+## Estrutura do Projeto
 
----
-
-## Instalação
-
-
-```bash
-$ git clone https://github.com/Gaiteiro2025/parthos-task-api.git
-$ cd parthos-task-ap
-```
-
-Instale as dependências:
-
-```bash
-$ npm install
-```
+- **src/**: Código-fonte principal.
+- **.env**: Arquivo de variáveis de ambiente.
+- **docker-compose.yml**: Configuração para rodar via Docker.
+- **tests/**: Testes unitários e de integração.
 
 ---
 
-## Configuração do Ambiente
+## Como Rodar o Projeto
 
-Antes de rodar o projeto, crie um arquivo `.env` na raiz do projeto e configure as variáveis de ambiente necessárias.
+### 1. Clone o Repositório
+```sh
+git clone git@github.com:Gaiteiro2025/parthos-task-api.git
+cd parthos-task-api
+```
 
-Exemplo de `.env`:
+### 2. Instale as Dependências
+```sh
+npm install
+```
 
-```ini
+### 3. Configure as Variáveis de Ambiente
+Crie um arquivo `.env` na raiz do projeto e defina as variáveis:
+```sh
 DB_HOST=db
 DB_PORT=5432
 DB_USER=postgres
@@ -48,14 +42,10 @@ JWT_SECRET=default_secret
 JWT_EXPIRATION=1h
 ```
 
-## Uso
-
-Para iniciar a aplicação em modo de desenvolvimento:
-
-```bash
-$ npm run start:dev
+### 4. Execute a Aplicação
+```sh
+npm run start:dev
 ```
-
 A API estará disponível em: [http://localhost:3002](http://localhost:3002)
 
 A documentação Swagger estará em: [http://localhost:3002/api](http://localhost:3002/api)
@@ -64,125 +54,49 @@ A documentação Swagger estará em: [http://localhost:3002/api](http://localhos
 
 ## Docker
 
-O projeto inclui suporte ao Docker para facilitar a execução e os testes.
-
-### Subir o ambiente de desenvolvimento
-
-```bash
-$ docker-compose up --build
+### Subir o ambiente
+```sh
+docker-compose up --build
 ```
 
-Com o contêiner rodando, aplique as migrations:
-
-```bash
-$ docker exec -it meu-projeto-api sh -c "npm run typeorm:migrate src/migrations/CreateUserTable"
+### Aplicar Migrations
+```sh
+docker exec -it parthos-task-api sh -c "npm run typeorm:migrate src/migrations/CreateTaskTable"
 ```
 
-### Rodar os testes em um container
-
-```bash
-docker-compose -f docker-compose.test.yml up
-```
-
-### Acessar o container para execução manual
-
-```bash
-$ docker exec -it meu-projeto-api sh
-```
-
-Para o ambiente de testes:
-
-```bash
-$ docker exec -it meu-projeto-test-api sh
+### Acessar o Container
+```sh
+docker exec -it parthos-task-api sh
 ```
 
 ---
 
 ## Testes
 
-### Testes Unitários
-
-```bash
-$ npm run test
+### Rodar Testes Unitários
+```sh
+npm run test
 ```
 
-### Testes de Cobertura
-
-```bash
-$ npm run test:cov
+### Cobertura de Testes
+```sh
+npm run test:cov
 ```
 
 ### Testes End-to-End (E2E)
-
-```bash
-$ npm run test:e2e
-```
-
-### Testes com Docker Compose
-
-```bash
-docker-compose -f docker-compose.test.yml up
+```sh
+npm run test:e2e
 ```
 
 ---
 
-## Integração Contínua
+## CI/CD
 
-O projeto utiliza GitHub Actions para rodar os testes automaticamente nas PRs para `main`.
-
-Arquivo `.github/workflows/test.yml`:
-
-```yaml
-name: Run Tests
-
-on:
-  pull_request:
-    branches:
-      - main
-
-jobs:
-  unit-tests:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v3
-      - name: Set up Node.js
-        uses: actions/setup-node@v3
-        with:
-          node-version: '16'
-      - name: Install dependencies
-        run: npm install
-      - name: Run unit tests
-        run: npm run test
-
-  e2e-tests:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v3
-      - name: Set up Node.js
-        uses: actions/setup-node@v3
-        with:
-          node-version: '16'
-      - name: Install dependencies
-        run: npm install
-      - name: Run E2E tests
-        run: npm run test:e2e
-```
-
----
-
-## Contribuição
-
-1. Faça um fork do repositório.
-2. Crie uma branch para sua feature: `git checkout -b minha-feature`.
-3. Commit suas mudanças: `git commit -m 'Minha nova feature'`.
-4. Envie para o repositório remoto: `git push origin minha-feature`.
-5. Abra um Pull Request.
+O projeto utiliza **GitHub Actions** para testes automáticos.
 
 ---
 
 ## Licença
 
-Este projeto está sob a licença [MIT](LICENSE).
+Este projeto está sob a **licença MIT**. Veja o arquivo [LICENSE](https://github.com/Gaiteiro2025/parthos-task-api/blob/main/LICENSE) para mais detalhes.
 
