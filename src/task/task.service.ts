@@ -139,14 +139,13 @@ export class TaskService {
 
   private detectChanges(task: Task, updateTaskDto: UpdateTaskDto): TaskChange[] {
     const changes: TaskChange[] = [];
-
     Object.entries(updateTaskDto).forEach(([keyTask, value]) => {
       const key = keyTask as keyof UpdateTaskDto;
       const newValue = value as UpdateTaskDto[keyof UpdateTaskDto];
-      let oldValue = task[key] as Task[keyof UpdateTaskDto] || '';
+      let oldValue = task[key] as Task[keyof UpdateTaskDto] || null;
 
       if (key === 'assign' || oldValue instanceof User) return;
-      if (isDate(oldValue)) oldValue = oldValue.toISOString();
+      if (isDate(oldValue)) oldValue = oldValue.toISOString() || null;
 
       if (newValue !== undefined && oldValue !== newValue) {
         changes.push({ fieldChanged: key, oldValue: oldValue, newValue: newValue.toString() });
